@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'javanode' }  // or 'any' if you prefer
+    agent any
 
     stages {
         stage('Checkout') {
@@ -10,23 +10,36 @@ pipeline {
 
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package'
+                script {
+                    // Find the directory containing pom.xml (handles subdir checkout)
+                    def pomDir = findFiles(glob: '**/pom.xml')[0]?.path ?: 'pom.xml'
+                    def projectDir = pomDir.substring(0, pomDir.lastIndexOf('/'))
+                    
+                    dir(projectDir) {
+                        sh 'mvn clean package'
+                    }
+                }
             }
         }
 
         stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                script {
+                    // Archive from the project dir too
+                    def pomDir = findFiles(glob: '**/pom.xml')[0]?.path ?: 'pom.xml'
+                    def projectDir = pomDir.substring(0, pomDir.lastIndexOf('/'))
+                    archiveArtifacts artifacts: "${projectDir}/target/*.jar", allowEmptyArchive: true
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Build successful'
+            echo 'Build succeeded 🎉'
         }
         failure {
-            echo 'Build failed'
+            echo 'Build failed ❌ - check pom.xml location and Maven setup'
         }
     }
 }
