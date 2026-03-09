@@ -36,7 +36,7 @@ pipeline {
 
     post {
         success {
-            echo 'Build succeeded 🎉'
+            echo '✅Build succeeded 🎉'
         }
         failure {
             echo 'Build failed ❌ - check pom.xml location and Maven setup'
