@@ -1,27 +1,25 @@
 pipeline {
     agent any
-    
-    tools {
-        maven 'Maven3'  // matches the name from Global Tool Config
-        jdk 'java-17-openjdk'  // or whatever JDK name you set
-    }
 
     stages {
-        stage('Debug') {
+        stage('01 - Debug') {
             steps {
-                sh 'ls -la'
-                sh 'pwd'
-                sh 'mvn --version || echo "Maven not in PATH yet"'
+                sh '''
+                    echo "=== Ready to build ==="
+                    ls -la | grep pom
+                    mvn --version
+                    pwd
+                '''
             }
         }
         
-        stage('Build') {
+        stage('02 - Build') {
             steps {
                 sh 'mvn clean package'
             }
         }
         
-        stage('Archive') {
+        stage('03 - Archive') {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
@@ -29,7 +27,7 @@ pipeline {
     }
     
     post {
-        success { echo '🎉 SUCCESS - check Artifacts tab!' }
-        failure { echo '💥 FAILED - see logs above' }
+        success { echo '✅ SUCCESS! JAR archived.🚀' }
+        failure { echo '❌ FAILED.' }
     }
 }
