@@ -1,45 +1,35 @@
 pipeline {
     agent any
+    
+    tools {
+        maven 'Maven3'  // matches the name from Global Tool Config
+        jdk 'java-17-openjdk'  // or whatever JDK name you set
+    }
 
     stages {
-        stage('Checkout') {
+        stage('Debug') {
             steps {
-                checkout scm
+                sh 'ls -la'
+                sh 'pwd'
+                sh 'mvn --version || echo "Maven not in PATH yet"'
             }
         }
-
-        stage('Build with Maven') {
+        
+        stage('Build') {
             steps {
-                script {
-                    // Find the directory containing pom.xml (handles subdir checkout)
-                    def pomDir = findFiles(glob: '**/pom.xml')[0]?.path ?: 'pom.xml'
-                    def projectDir = pomDir.substring(0, pomDir.lastIndexOf('/'))
-                    
-                    dir(projectDir) {
-                        sh 'mvn clean package'
-                    }
-                }
+                sh 'mvn clean package'
             }
         }
-
-        stage('Archive Artifacts') {
+        
+        stage('Archive') {
             steps {
-                script {
-                    // Archive from the project dir too
-                    def pomDir = findFiles(glob: '**/pom.xml')[0]?.path ?: 'pom.xml'
-                    def projectDir = pomDir.substring(0, pomDir.lastIndexOf('/'))
-                    archiveArtifacts artifacts: "${projectDir}/target/*.jar", allowEmptyArchive: true
-                }
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
     }
-
+    
     post {
-        success {
-            echo '✅Build succeeded 🎉'
-        }
-        failure {
-            echo 'Build failed ❌ - check pom.xml location and Maven setup'
-        }
+        success { echo '🎉 SUCCESS - check Artifacts tab!' }
+        failure { echo '💥 FAILED - see logs above' }
     }
 }
