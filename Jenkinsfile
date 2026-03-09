@@ -1,33 +1,18 @@
 pipeline {
     agent any
-
     stages {
-        stage('01 - Debug') {
-            steps {
-                sh '''
-                    echo "=== Ready to build ==="
-                    ls -la | grep pom
-                    mvn --version
-                    pwd
-                '''
-            }
-        }
-        
-        stage('02 - Build') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package'
             }
         }
-        
-        stage('03 - Archive') {
+        stage('Archive') {
             steps {
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                archiveArtifacts 'target/*.jar'
             }
         }
     }
-    
     post {
-        success { echo '✅ SUCCESS! JAR archived.' }
-        failure { echo '❌ FAILED.' }
+        success { echo 'SUCCESS ✅' }
     }
 }
