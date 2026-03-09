@@ -27,7 +27,7 @@ pipeline {
     }
     
     post {
-        success { echo '✅ SUCCESS! JAR archived.🚀' }
+        success { echo '✅ SUCCESS! JAR archived.' }
         failure { echo '❌ FAILED.' }
     }
 }
