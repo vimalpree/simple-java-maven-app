@@ -13,6 +13,6 @@ pipeline {
         }
     }
     post {
-        success { echo 'SUCCESS ✅' }
+        success { echo 'SUCCESSful ✅' }
     }
 }
